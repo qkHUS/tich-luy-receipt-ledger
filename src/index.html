@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12372a">
+  <meta name="description" content="Tích Lũy — đọc hóa đơn bằng OCR ngay trong trình duyệt và quản lý sổ chi riêng tư cho SME Việt Nam.">
+  <meta name="color-scheme" content="light dark">
+  <title>Tích Lũy — AI Receipt Ledger cho SME</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <script type="module" src="./assets/app.js"></script>
+</head>
+<body data-theme="light">
+  <a class="skip-link" href="#main-content">Bỏ qua tới nội dung chính</a>
+  <p id="app-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <header class="topbar">
+    <a class="brand" href="./">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img">
+          <path d="M9 34.5c6.8 3.1 13.6 3.1 20.4 0 4-1.8 7.1-1.7 9.6.4V13.2c-4.2-1.1-7.6-.5-10.2 1.8-2.8 2.5-6.2 2.5-10.8 0-2.8-1.5-5.9-1.7-9-.6v20.1Z" fill="currentColor" opacity=".24"/>
+          <path d="M13 31.5h22M15.5 25.5h17M19 19.5h10" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3"/>
+        </svg>
+      </span>
+      <span class="brand-copy">
+        <strong>Tích Lũy</strong>
+        <small>Receipt ledger cho SME</small>
+      </span>
+    </a>
+
+    <div class="topbar-actions">
+      <span class="privacy-pill" title="Ảnh hóa đơn không rời khỏi thiết bị">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.2 16 4.6v4.7c0 3.7-2.4 6.7-6 8.5-3.6-1.8-6-4.8-6-8.5V4.6L10 2.2Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m7.2 10 1.8 1.8 3.8-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
+        100% riêng tư
+      </span>
+      <button id="install-app" class="button button-small button-ghost install-button" type="button" hidden>Cài ứng dụng</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="Bật chế độ tối" aria-pressed="false" title="Đổi giao diện sáng/tối">
+        <svg class="theme-icon theme-icon-light" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg>
+        <svg class="theme-icon theme-icon-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.2 8.2 0 0 1 8.8 4 8.2 8.2 0 1 0 20 15.2Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.8"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content" class="page-shell" tabindex="-1">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> AI receipt workspace · Không cần API key</p>
+        <h1 id="hero-title">Hóa đơn thành <em>sổ chi</em> trong vài giây.</h1>
+        <p class="hero-lead">Chụp ảnh hóa đơn, để Tích Lũy đọc ngày, cửa hàng, tổng tiền và thuế. Mọi xử lý diễn ra ngay trong trình duyệt.</p>
+        <div class="hero-trust" role="list" aria-label="Các cam kết của sản phẩm">
+          <span role="listitem"><i>✓</i> Không upload ảnh</span>
+          <span role="listitem"><i>✓</i> Dữ liệu trên máy</span>
+          <span role="listitem"><i>✓</i> Hoạt động offline</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="receipt-card receipt-card-back"></div>
+        <div class="receipt-card receipt-card-front">
+          <span class="receipt-logo"></span>
+          <span class="receipt-line w-70"></span>
+          <span class="receipt-line w-45"></span>
+          <span class="receipt-line w-80"></span>
+          <span class="receipt-divider"></span>
+          <span class="receipt-total"></span>
+          <span class="receipt-scan"><i></i></span>
+        </div>
+        <div class="hero-orbit"><span>+128.000 ₫</span></div>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Tóm tắt sổ chi">
+      <article class="metric-card metric-primary">
+        <div class="metric-icon" aria-hidden="true">₫</div>
+        <div><span>Chi trong tháng</span><strong id="metric-spend">0 ₫</strong></div>
+        <small id="metric-spend-note">Chưa có hóa đơn</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-icon metric-icon-lime" aria-hidden="true">%</div>
+        <div><span>Thuế GTGT</span><strong id="metric-vat">0 ₫</strong></div>
+        <small>Đã ghi nhận</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-icon metric-icon-blue" aria-hidden="true">#</div>
+        <div><span>Hóa đơn</span><strong id="metric-count">0</strong></div>
+        <small id="metric-count-note">Sẵn sàng nhận</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-icon metric-icon-gold" aria-hidden="true">↗</div>
+        <div><span>Trung bình / hóa đơn</span><strong id="metric-average">0 ₫</strong></div>
+        <small>Tháng hiện tại</small>
+      </article>
+    </section>
+
+    <section id="capture" class="capture-grid" aria-label="Nhập và kiểm tra hóa đơn">
+      <article class="panel capture-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="step-label">01 · Nhập hóa đơn</span>
+            <h2>Chụp hoặc kéo thả ảnh</h2>
+          </div>
+          <span class="local-badge"><i></i> Local OCR</span>
+        </div>
+
+        <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-describedby="drop-help" aria-busy="false">
+          <input id="receipt-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+          <input id="camera-input" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
+          <div id="drop-empty" class="drop-empty">
+            <div class="upload-illustration" aria-hidden="true">
+              <svg viewBox="0 0 64 64"><rect x="9" y="7" width="46" height="50" rx="8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M32 42V21m0 0-8 8m8-8 8 8M20 48h24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/></svg>
+            </div>
+            <strong>Thả ảnh hóa đơn vào đây</strong>
+            <span>hoặc nhấn để chọn từ máy</span>
+            <small id="drop-help">JPG, PNG, WebP · tối đa 12 MB</small>
+          </div>
+          <div id="drop-preview" class="drop-preview" hidden>
+            <img id="receipt-preview" alt="Ảnh hóa đơn đang xử lý">
+            <div class="preview-overlay"><span id="preview-name"></span></div>
+          </div>
+        </div>
+
+        <div id="ocr-progress" class="ocr-progress" hidden aria-live="polite">
+          <div class="progress-copy"><span id="ocr-status">Đang chuẩn bị OCR…</span><strong id="ocr-percent">0%</strong></div>
+          <div id="ocr-progressbar" class="progress-track" role="progressbar" aria-label="Tiến độ OCR" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ocr-bar"></span></div>
+          <p id="ocr-detail">Tải bộ nhận dạng ngôn ngữ Việt–Anh</p>
+        </div>
+
+        <div class="capture-actions">
+          <button id="camera-button" class="button button-primary" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6.5h3l1.2-2h5.6l1.2 2h3v9H3v-9Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/><circle cx="10" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            Chụp hóa đơn
+          </button>
+          <button id="demo-button" class="button button-ghost" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h12v13H4zM7 7h6M7 10h6M7 13h3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/></svg>
+            Dùng hóa đơn mẫu
+          </button>
+          <button id="cancel-ocr" class="button button-danger-ghost" type="button" hidden>Hủy OCR</button>
+        </div>
+      </article>
+
+      <article id="review-panel" class="panel review-panel" aria-labelledby="review-title">
+        <div class="panel-heading">
+          <div>
+            <span class="step-label">02 · Kiểm tra & lưu</span>
+            <h2 id="review-title" tabindex="-1">Thông tin hóa đơn</h2>
+          </div>
+          <span id="parse-confidence" class="confidence-badge" hidden>—</span>
+        </div>
+
+        <form id="receipt-form" class="receipt-form">
+          <div class="form-grid">
+            <label class="field field-wide">
+              <span>Cửa hàng / nhà cung cấp</span>
+              <input id="merchant" name="merchant" type="text" autocomplete="organization" placeholder="Ví dụ: Công ty TNHH ABC" required maxlength="240">
+            </label>
+            <label class="field">
+              <span>Ngày hóa đơn</span>
+              <input id="receipt-date" name="date" type="date" required>
+            </label>
+            <label class="field">
+              <span>Tổng thanh toán (₫)</span>
+              <input id="total" name="total" type="number" min="0" step="1" required inputmode="numeric">
+            </label>
+            <label class="field">
+              <span>Thuế GTGT (₫)</span>
+              <input id="vat" name="vat" type="number" min="0" step="1" inputmode="numeric">
+            </label>
+            <label class="field">
+              <span>Số hóa đơn</span>
+              <input id="invoice-number" name="invoiceNumber" type="text" placeholder="Không bắt buộc" maxlength="120">
+            </label>
+            <label class="field">
+              <span>Phương thức thanh toán</span>
+              <select id="payment-method" name="paymentMethod">
+                <option value="cash">Tiền mặt</option>
+                <option value="card">Thẻ</option>
+                <option value="transfer">Chuyển khoản</option>
+                <option value="other">Khác</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Nhóm chi</span>
+              <select id="category" name="category">
+                <option value="food">Ăn uống</option>
+                <option value="transport">Di chuyển</option>
+                <option value="office">Văn phòng</option>
+                <option value="software">Phần mềm</option>
+                <option value="utilities">Điện nước</option>
+                <option value="health">Y tế</option>
+                <option value="education">Giáo dục</option>
+                <option value="entertainment">Giải trí</option>
+                <option value="travel">Du lịch</option>
+                <option value="services">Dịch vụ</option>
+                <option value="shopping">Mua sắm</option>
+                <option value="inventory">Hàng tồn</option>
+                <option value="other">Khác</option>
+              </select>
+            </label>
+            <label class="field field-wide">
+              <span>Ghi chú</span>
+              <input id="note" name="note" type="text" placeholder="Mục đích chi, người mua…" maxlength="500">
+            </label>
+          </div>
+
+          <details id="raw-text-details" class="raw-text">
+            <summary>Xem văn bản OCR</summary>
+            <pre id="raw-text"></pre>
+          </details>
+
+          <div class="form-footer">
+            <p id="form-message" class="form-message" role="status"></p>
+            <button id="save-receipt" class="button button-primary" type="submit">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h10.5L17 6v10.5H4zM7 3.5v5h6v-5M7 16.5v-5h6v5" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"/></svg>
+              Lưu vào sổ chi
+            </button>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <section id="ledger" class="ledger-section" aria-labelledby="ledger-title">
+      <div class="section-heading">
+        <div>
+          <span class="step-label">03 · Theo dõi chi tiêu</span>
+          <h2 id="ledger-title">Sổ chi của bạn</h2>
+          <p>Dữ liệu chỉ được lưu trong trình duyệt này.</p>
+        </div>
+        <div class="ledger-actions">
+          <button id="export-csv" class="button button-ghost" type="button">Xuất CSV</button>
+          <button id="export-json" class="button button-ghost" type="button">Sao lưu JSON</button>
+          <button id="import-trigger" class="button button-ghost file-button" type="button">Nhập JSON</button>
+          <input id="import-json" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+
+      <div class="ledger-grid">
+        <article class="panel chart-panel">
+          <div class="panel-heading compact">
+            <div><h3>Phân bổ chi phí</h3><p id="chart-period">Tháng hiện tại</p></div>
+          </div>
+          <div id="category-chart" class="category-chart" role="img" aria-label="Biểu đồ phân bổ chi phí theo nhóm"></div>
+          <div id="category-legend" class="category-legend"></div>
+        </article>
+
+        <article class="panel receipts-panel">
+          <div class="receipt-toolbar">
+            <label class="search-field">
+              <span class="sr-only">Tìm hóa đơn</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
+              <input id="search-receipts" type="search" placeholder="Tìm cửa hàng, ghi chú…" aria-controls="receipt-list">
+            </label>
+            <label class="select-field">
+              <span class="sr-only">Lọc theo tháng</span>
+              <select id="month-filter" aria-controls="receipt-list"></select>
+            </label>
+            <label class="select-field">
+              <span class="sr-only">Lọc theo nhóm chi</span>
+              <select id="category-filter" aria-controls="receipt-list"></select>
+            </label>
+          </div>
+          <div id="receipt-list" class="receipt-list"></div>
+          <p id="results-status" class="results-status" role="status" aria-live="polite"></p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>Tích Lũy</strong> · Một sản phẩm thử nghiệm từ OMNI Company.</p>
+    <p>Local-first · Không tracking · Không API trả phí</p>
+  </footer>
+
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <form method="dialog">
+      <span class="dialog-icon" aria-hidden="true">!</span>
+      <h2 id="confirm-title">Xác nhận</h2>
+      <p id="confirm-message"></p>
+      <div class="dialog-actions">
+        <button id="confirm-cancel" class="button button-ghost" value="cancel">Để lại</button>
+        <button id="confirm-action" class="button button-danger" value="confirm">Xóa</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
