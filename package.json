@@ -1,0 +1,19 @@
+{
+  "name": "tich-luy-receipt-ledger",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first receipt OCR and expense ledger for Vietnamese SMEs",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.js",
+    "check": "npm test && npm run build"
+  },
+  "devDependencies": {
+    "tesseract.js": "7.0.0",
+    "tesseract.js-core": "7.0.0"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  }
+}
