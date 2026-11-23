@@ -33,6 +33,7 @@ test('application only pre-fills totals backed by an explicit high-confidence la
   assert.match(source, /function getFieldConfidence\(/);
   assert.doesNotMatch(source, /function fieldConfidence\(/);
   assert.match(source, /getFieldConfidence\(parsed, 'total'\) >= 0\.9/);
+  assert.match(source, /empty\.setAttribute\('role', 'listitem'\)/);
 });
 
 test('backup import failures are reported in user-friendly Vietnamese', async () => {

@@ -469,6 +469,7 @@ function renderReceiptList(records) {
   if (!records.length) {
     const empty = document.createElement('div');
     empty.className = 'receipt-empty';
+    empty.setAttribute('role', 'listitem');
     const icon = document.createElement('span');
     icon.className = 'empty-icon';
     icon.setAttribute('aria-hidden', 'true');
